@@ -1,0 +1,42 @@
+type User {
+  id: String!
+  name: String!
+  currentlyPlaying: Game
+}
+
+type Game {
+  id: String!
+  topic: String!
+  host: User!
+  players: [User]!
+  active: Boolean!
+  currentPlayer: User
+  submissions: [Submission]!
+  drawPile: [String]!
+}
+
+type Submission {
+  id: String!
+  title: String!
+  submitter: User!
+  possessor: User
+  pastPossessor: [User]!
+  game: Game!
+}
+
+type Query {
+  user: User
+  game: Game
+}
+
+type Mutation {
+  createUser(name: String!): User
+  createGame(topic: String!): Game
+  startGame: Game
+  leaveGame: User
+  endGame: Boolean
+  joinGame(gameId: String!): User
+  makeSubmission(title: String!): Submission
+  steal(submissionId: String!): Submission
+  drawFromPile: Submission
+}

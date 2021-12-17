@@ -1,0 +1,48 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 String       @id @default(cuid())
+  name               String
+  hosting            Game?        @relation("Host")
+  currentlyPlaying   Game?        @relation(name: "CurrentlyPlaying", fields: [currentlyPlayingId], references: [id])
+  currentlyPlayingId String?
+  submissions        Submission[] @relation("Submitter")
+  possession         Submission?  @relation("Possessor")
+  pastPossessions    Submission[]
+  currentTurn        Game?        @relation("CurrentPlayer")
+}
+
+model Game {
+  id              String       @id @default(cuid())
+  topic           String
+  host            User         @relation(name: "Host", fields: [hostId], references: [id])
+  hostId          String       @unique
+  players         User[]       @relation("CurrentlyPlaying")
+  active          Boolean      @default(false)
+  currentPlayer   User?        @relation(name: "CurrentPlayer", fields: [currentPlayerId], references: [id])
+  currentPlayerId String?      @unique
+  submissions     Submission[]
+  drawPile        String[]
+}
+
+model Submission {
+  id            String @id @default(uuid())
+  title         String
+  submitter     User   @relation(name: "Submitter", fields: [submitterId], references: [id])
+  submitterId   String
+  possessor     User?  @relation(name: "Possessor", fields: [possessorId], references: [id])
+  possessorId   String? @unique
+  pastPossessor User[]
+  game          Game   @relation(fields: [gameId], references: [id])
+  gameId        String
+}

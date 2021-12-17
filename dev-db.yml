@@ -1,0 +1,15 @@
+# Set the version of docker compose to use
+version: '3.9'
+
+# The containers that compose the project
+services:
+  db:
+    image: postgres:13
+    restart: always
+    container_name: white-elephant-dev
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: baronwilleford
+      POSTGRES_PASSWORD: hard_water_client_mixture_moon_solver
+      POSTGRES_DB: elehpant-base
