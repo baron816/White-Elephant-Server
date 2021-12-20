@@ -1,5 +1,6 @@
 import { AuthenticationError } from 'apollo-server-errors';
 import { Resolvers } from '../../generated/graphql';
+import { publishGameUpdated } from '../subscriptions';
 import { Context } from '../types';
 
 export const resolvers: Resolvers<Context> = {
@@ -23,13 +24,17 @@ export const resolvers: Resolvers<Context> = {
         throw new Error('User already made submission');
       }
 
-      return db.submission.create({
+      const sub = (await db.submission.create({
         data: {
           title,
           submitterId: user.id,
           gameId: user.currentlyPlayingId,
         },
-      }) as any;
+      })) as any;
+
+      publishGameUpdated(user.currentlyPlayingId);
+
+      return sub;
     },
     steal: async (_, { submissionId }, { db, user }) => {
       if (user == null) {
@@ -89,6 +94,8 @@ export const resolvers: Resolvers<Context> = {
           },
         },
       });
+
+      publishGameUpdated(game.id);
 
       return updatedSubmission as any;
     },

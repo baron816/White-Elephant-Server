@@ -142,14 +142,17 @@ describe('Submission', () => {
     );
 
     const result = res.data?.steal;
-    expect(result).toEqual({
+    expect(result).toMatchObject({
       game: {
         currentPlayer: { id: user2.id },
       },
-      pastPossessor: [{ id: user1.id }, { id: user2.id }, { id: user3.id }],
+
       possessor: {
         id: user1.id,
       },
     });
+    expect(result.pastPossessor).toContainEqual({ id: user1.id });
+    expect(result.pastPossessor).toContainEqual({ id: user2.id });
+    expect(result.pastPossessor).toContainEqual({ id: user3.id });
   });
 });

@@ -130,11 +130,12 @@ describe('Game', () => {
       getContextRequest(user.id)
     );
 
-    expect(res.data?.joinGame.currentlyPlaying.id).toBe(game.id);
-    expect(res.data?.joinGame.currentlyPlaying.players).toEqual([
-      { id: host.id },
-      { id: user.id },
-    ]);
+    const result = res.data?.joinGame.currentlyPlaying;
+
+    expect(result?.id).toBe(game.id);
+
+    expect(result?.players).toContainEqual({ id: host.id });
+    expect(result?.players).toContainEqual({ id: user.id });
   });
 
   test('leave game', async () => {

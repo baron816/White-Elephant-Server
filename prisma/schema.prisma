@@ -32,7 +32,6 @@ model Game {
   currentPlayer   User?        @relation(name: "CurrentPlayer", fields: [currentPlayerId], references: [id])
   currentPlayerId String?      @unique
   submissions     Submission[]
-  drawPile        String[]
 }
 
 model Submission {

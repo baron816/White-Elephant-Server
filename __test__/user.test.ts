@@ -30,6 +30,8 @@ describe('User', () => {
   });
 
   afterAll(async () => {
+    // const deleteSubmissions = prisma.submission.deleteMany();
+    // const deleteGames = prisma.game.deleteMany();
     const deleteUsers = prisma.user.deleteMany();
 
     await prisma.$transaction([deleteUsers]);

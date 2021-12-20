@@ -18,7 +18,6 @@ export type Game = {
   __typename?: 'Game';
   active: Scalars['Boolean'];
   currentPlayer?: Maybe<User>;
-  drawPile: Array<Maybe<Scalars['String']>>;
   host: User;
   id: Scalars['String'];
   players: Array<Maybe<User>>;
@@ -78,6 +77,16 @@ export type Submission = {
   possessor?: Maybe<User>;
   submitter: User;
   title: Scalars['String'];
+};
+
+export type Subscription = {
+  __typename?: 'Subscription';
+  gameUpdated?: Maybe<Game>;
+};
+
+
+export type SubscriptionGameUpdatedArgs = {
+  gameId: Scalars['String'];
 };
 
 export type User = {
@@ -162,6 +171,7 @@ export type ResolversTypes = {
   Query: ResolverTypeWrapper<{}>;
   String: ResolverTypeWrapper<Scalars['String']>;
   Submission: ResolverTypeWrapper<Submission>;
+  Subscription: ResolverTypeWrapper<{}>;
   User: ResolverTypeWrapper<User>;
 };
 
@@ -173,13 +183,13 @@ export type ResolversParentTypes = {
   Query: {};
   String: Scalars['String'];
   Submission: Submission;
+  Subscription: {};
   User: User;
 };
 
 export type GameResolvers<ContextType = any, ParentType extends ResolversParentTypes['Game'] = ResolversParentTypes['Game']> = {
   active?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   currentPlayer?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
-  drawPile?: Resolver<Array<Maybe<ResolversTypes['String']>>, ParentType, ContextType>;
   host?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   players?: Resolver<Array<Maybe<ResolversTypes['User']>>, ParentType, ContextType>;
@@ -215,6 +225,10 @@ export type SubmissionResolvers<ContextType = any, ParentType extends ResolversP
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type SubscriptionResolvers<ContextType = any, ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']> = {
+  gameUpdated?: SubscriptionResolver<Maybe<ResolversTypes['Game']>, "gameUpdated", ParentType, ContextType, RequireFields<SubscriptionGameUpdatedArgs, 'gameId'>>;
+};
+
 export type UserResolvers<ContextType = any, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = {
   currentlyPlaying?: Resolver<Maybe<ResolversTypes['Game']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -227,6 +241,7 @@ export type Resolvers<ContextType = any> = {
   Mutation?: MutationResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   Submission?: SubmissionResolvers<ContextType>;
+  Subscription?: SubscriptionResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
 };
 

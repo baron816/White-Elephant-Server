@@ -12,7 +12,6 @@ type Game {
   active: Boolean!
   currentPlayer: User
   submissions: [Submission]!
-  drawPile: [String]!
 }
 
 type Submission {
@@ -39,4 +38,8 @@ type Mutation {
   makeSubmission(title: String!): Submission
   steal(submissionId: String!): Submission
   drawFromPile: Submission
+}
+
+type Subscription {
+  gameUpdated(gameId: String!): Game
 }

@@ -1,7 +1,9 @@
 import { AuthenticationError } from 'apollo-server-errors';
+import { withFilter } from 'graphql-subscriptions';
 import sample from 'lodash/sample';
 import shuffle from 'lodash/shuffle';
 import { Resolvers } from '../../generated/graphql';
+import { GAME_UPDATED, publishGameUpdated, pubsub } from '../subscriptions';
 import { Context } from '../types';
 
 export const resolvers: Resolvers<Context> = {
@@ -19,15 +21,19 @@ export const resolvers: Resolvers<Context> = {
     },
   },
   Mutation: {
-    leaveGame: (_, __, { db, user }) => {
+    leaveGame: async (_, __, { db, user }) => {
       if (user == null) {
         throw new AuthenticationError('No user present');
       }
 
-      return db.user.update({
+      const updatedUser = await db.user.update({
         where: { id: user.id },
         data: { currentlyPlayingId: null },
+        include: { currentlyPlaying: true },
       });
+
+      publishGameUpdated(user.currentlyPlayingId);
+      return updatedUser as any;
     },
     endGame: async (_, __, { db, user }) => {
       if (user == null) {
@@ -77,10 +83,14 @@ export const resolvers: Resolvers<Context> = {
         throw new Error('Game in progress');
       }
 
-      return db.user.update({
+      const updatedUser = await db.user.update({
         where: { id: user.id },
         data: { currentlyPlayingId: gameId },
+        include: { currentlyPlaying: true },
       });
+
+      publishGameUpdated(gameId);
+      return updatedUser as any;
     },
     startGame: async (_, __, { db, user }) => {
       if (user == null) {
@@ -108,10 +118,14 @@ export const resolvers: Resolvers<Context> = {
         game.submissions.map((submission) => submission.id)
       );
 
-      return db.game.update({
+      const updatedGame = (await db.game.update({
         where: { id: game.id },
         data: { active: true, drawPile: shuffledSubmissionIds },
-      }) as any;
+      })) as any;
+
+      publishGameUpdated(game.id);
+
+      return updatedGame;
     },
     drawFromPile: async (_, __, { db, user }) => {
       if (user == null) {
@@ -151,7 +165,7 @@ export const resolvers: Resolvers<Context> = {
         playerIdx + 1 >= game.players.length ? 0 : playerIdx + 1;
       const nextPlayer = game.players[nextPlayerIdx];
 
-      return db.submission.update({
+      const updatedSubmission = (await db.submission.update({
         where: { id: pick.id },
         data: {
           possessor: {
@@ -167,7 +181,10 @@ export const resolvers: Resolvers<Context> = {
             },
           },
         },
-      }) as any;
+      })) as any;
+
+      publishGameUpdated(game.id);
+      return updatedSubmission;
     },
   },
   Game: {
@@ -184,6 +201,21 @@ export const resolvers: Resolvers<Context> = {
     },
     currentPlayer(parent, args, { db }) {
       return db.game.findUnique({ where: { id: parent.id } }).currentPlayer();
+    },
+  },
+  Subscription: {
+    gameUpdated: {
+      resolve(payload: any, args: any, context: any) {
+        return context.db.game.findUnique({
+          where: { id: payload.gameUpdated },
+        });
+      },
+      subscribe: withFilter(
+        () => pubsub.asyncIterator(GAME_UPDATED),
+        (payload, variables) => {
+          return payload.gameUpdated === variables.gameId;
+        }
+      ) as any,
     },
   },
 };
