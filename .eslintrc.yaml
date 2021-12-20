@@ -7,6 +7,6 @@ parser: '@typescript-eslint/parser'
 parserOptions:
   ecmaVersion: 9
   files: ['*.ts', '*.test.ts']
-  project: ./tsconfig.json
+  project: ['./tsconfig.json']
 plugins:
   - '@typescript-eslint'

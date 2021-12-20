@@ -114,13 +114,9 @@ export const resolvers: Resolvers<Context> = {
         throw new Error('Only the host can start the game');
       }
 
-      const shuffledSubmissionIds = shuffle(
-        game.submissions.map((submission) => submission.id)
-      );
-
       const updatedGame = (await db.game.update({
         where: { id: game.id },
-        data: { active: true, drawPile: shuffledSubmissionIds },
+        data: { active: true },
       })) as any;
 
       publishGameUpdated(game.id);

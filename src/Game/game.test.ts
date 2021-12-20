@@ -1,7 +1,7 @@
 import { gql } from 'apollo-server-core';
-import { server } from '../src/index';
-import { prisma } from '../src/prismaClient';
-import { getContextRequest } from './utils';
+import { server } from '../index';
+import { prisma } from '../prismaClient';
+import { getContextRequest } from '../utils/testUtils';
 
 const createGameMutation = gql`
   mutation CreateGame($topic: String!) {
